@@ -1,0 +1,4 @@
+StackExchange.Redis,
+StackExchange.Redis.Extensions.Core,
+StackExchange.Redis.Extensions.Newtonsoft
+nugetten indirilir

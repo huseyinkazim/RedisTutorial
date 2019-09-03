@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29209.152
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisTutorial", "RedisTutorial\RedisTutorial.csproj", "{78518A1C-9BD4-4349-B85C-17A9D69E6D4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisLikeTtz", "RedisLikeTtz\RedisLikeTtz.csproj", "{431269F3-DA9C-48B5-91B9-FE55F8263F8D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{78518A1C-9BD4-4349-B85C-17A9D69E6D4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78518A1C-9BD4-4349-B85C-17A9D69E6D4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78518A1C-9BD4-4349-B85C-17A9D69E6D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78518A1C-9BD4-4349-B85C-17A9D69E6D4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{431269F3-DA9C-48B5-91B9-FE55F8263F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{431269F3-DA9C-48B5-91B9-FE55F8263F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{431269F3-DA9C-48B5-91B9-FE55F8263F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{431269F3-DA9C-48B5-91B9-FE55F8263F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8DB5400C-74F2-4EB2-BA30-E344807CE188}
+	EndGlobalSection
+EndGlobal
