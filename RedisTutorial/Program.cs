@@ -1,82 +1,82 @@
-﻿using NLog;
+﻿using Ninject;
+using NLog;
+using RedisTutorial.Manager;
 using ServiceStack.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RedisTutorial
 {
-    public class CustomLogManager
-    {
-        private Logger _logger;
-        private static object locked = new object();
-        public CustomLogManager()
-        {
-            System.Diagnostics.Trace.CorrelationManager.ActivityId = Guid.NewGuid();
-        }
 
-        public Logger logger
+    class Program
+    {
+        public static IKernel kernal { set; get; }
+        private static ICustomLogManager _logger;
+        public static ICustomLogManager logger
         {
             get
             {
                 if (_logger == null)
                 {
-                    _logger = LogManager.GetCurrentClassLogger();
+                    _logger = kernal.Get<ICustomLogManager>();
                 }
                 return _logger;
             }
         }
-        public void Debug(string message) => logger.Debug(message);
-        public void Info(string message) => logger.Info(message);
-        public void Error(Exception ex, string message) => logger.Error(ex, message);
-        public void Log(LogLevel level, string message) => logger.Log(level, message);
-    }
-    class Program
-    {
-        private static CustomLogManager _logger = new CustomLogManager();
+        private static IRedisManager _redisManager;
+        public static IRedisManager redisManager
+        {
+            get
+            {
+                if (_redisManager == null)
+                {
+                    
+                    var nativeClient = new Ninject.Parameters.ConstructorArgument("nativeClient", kernal.Get<IRedisNativeClient>());
+                    var redisClient = new Ninject.Parameters.ConstructorArgument("redisClient", kernal.Get<IRedisClient>());
+
+                    _redisManager = kernal.Get<IRedisManager>(nativeClient, redisClient);
+                }
+                return _redisManager;
+            }
+        }
         static void Main(string[] args)
         {
             try
             {
-                _logger.Debug("Redis Tutorial uygulaması çalıştırıldı");
-                _logger.Info("set/get işlemleri başladı");
+                //-------------SAMPLE--------------
+                //var kernel = new StandardKernel();
+                //kernel.Load(Assembly.GetExecutingAssembly());
+                //var mailSender = kernel.Get<IMailSender>();
+                kernal = new StandardKernel(new DIOperation());
+
+                logger.Debug("Redis Tutorial uygulaması çalıştırıldı");
+                logger.Info("set/get işlemleri başladı");
                 #region set/get process
-                using (IRedisNativeClient client = new RedisClient())
-                {
-                    client.Set("Mesaj:1", Encoding.UTF8.GetBytes("Hello World"));
 
-                    string result = Encoding.UTF8.GetString(client.Get("Mesaj:1"));
-                    Console.WriteLine($"Değer : {result}");
-                }
+                redisManager.SetString("Mesaj:1", "Hello World");
+                Console.WriteLine($"Değer : {redisManager.GetString("Mesaj:1")}");
+
                 #endregion
-                _logger.Info("set/get işlemleri bitti");
+                logger.Info("set/get işlemleri bitti");
 
-                _logger.Info("list process işlemleri başladı");
+                logger.Info("list process işlemleri başladı");
                 #region listprocess
 
-                using (IRedisClient client = new RedisClient())
-                {
-                    var names = client.Lists["names"];
-                    names.Clear();
+                var list = new string[] { "Murat", "Yadigar", "Serkan" };
+                redisManager.SetList("names", list);
 
-                    names.Add("Murat");
-                    names.Add("Yadigar");
-                    names.Add("Serkan");
-                }
 
-                using (IRedisClient client = new RedisClient())
-                {
-                    var names = client.Lists["names"];
+                foreach (var name in redisManager.GetList("names"))
+                    Console.WriteLine($"İsim : {name}");
 
-                    foreach (var name in names)
-                        Console.WriteLine($"İsim : {name}");
-                }
                 #endregion
-                _logger.Info("list process işlemleri bitti");
+                logger.Info("list process işlemleri bitti");
 
-                _logger.Info("list with model process işlemleri başladı");
+                logger.Info("list with model process işlemleri başladı");
                 #region list with Model process
 
                 long lastCustomerId = 0;
@@ -129,9 +129,9 @@ namespace RedisTutorial
 
                 }
                 #endregion
-                _logger.Info("list with model process işlemleri bitti");
+                logger.Info("list with model process işlemleri bitti");
 
-                _logger.Log(LogLevel.Warn, "transaction işlemleri başladı");
+                logger.Log(LogLevel.Warn, "transaction işlemleri başladı");
                 #region transaction process
                 using (IRedisClient client = new RedisClient())
                 {
@@ -145,12 +145,12 @@ namespace RedisTutorial
                     Console.WriteLine($"Sonuç : {result}");
                 }
                 #endregion
-                _logger.Log(LogLevel.Warn, "transaction işlemleri bitti");
+                logger.Log(LogLevel.Warn, "transaction işlemleri bitti");
 
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Beklenmedik Hata" + ex.Message);
+                logger.Error(ex, "Beklenmedik Hata" + ex.Message);
             }
 
             finally
