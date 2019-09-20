@@ -34,7 +34,7 @@ namespace RedisTutorial
             {
                 if (_redisManager == null)
                 {
-                    
+
                     var nativeClient = new Ninject.Parameters.ConstructorArgument("nativeClient", kernal.Get<IRedisNativeClient>());
                     var redisClient = new Ninject.Parameters.ConstructorArgument("redisClient", kernal.Get<IRedisClient>());
 
@@ -65,7 +65,7 @@ namespace RedisTutorial
 
                 logger.Info("list process işlemleri başladı");
                 #region listprocess
-
+                redisManager.DeleteList("names");
                 var list = new string[] { "Murat", "Yadigar", "Serkan" };
                 redisManager.SetList("names", list);
 
@@ -81,69 +81,65 @@ namespace RedisTutorial
 
                 long lastCustomerId = 0;
 
-                // SET
-                using (IRedisClient client = new RedisClient())
+                redisManager.DeleteAllModels<Order>();
+                redisManager.DeleteAllModels<Customer>();
+
+                var order1 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_1" };
+                var order2 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_2" };
+                var order3 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_3" };
+                var order4 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_4" };
+
+                var orderList = new List<Order> { order1, order2, order3, order4 };
+
+                redisManager.InsertModels(orderList);
+
+
+
+
+                var customer1 = new Customer()
                 {
-
-                    //IRedisTypedClient
-                    var customerClient = client.As<Customer>();
-                    customerClient.DeleteAll();
-
-                    var customer1 = new Customer()
-                    {
-                        Id = customerClient.GetNextSequence(),
-                        Name = "Jess Lewis",
-                        Orders = new List<Order>
+                    Id = Guid.NewGuid(),
+                    Name = "Jess Lewis",
+                    Orders = new List<Order>
                 {
-                   new Order() { Id = 1 },
-                   new Order() { Id = 2 }
+                   order1,order2
                 }
-                    };
-                    var customer2 = new Customer()
-                    {
-                        Id = customerClient.GetNextSequence(),
-                        Name = "Huseyin Tosun",
-                        Orders = new List<Order>
+                };
+
+                var customer2 = new Customer()
                 {
-                   new Order() { Id = 3 },
-                   new Order() { Id = 4 }
+                    Id = Guid.NewGuid(),
+                    Name = "Huseyin Tosun",
+                    Orders = new List<Order>
+                {
+                   order3,order4
                 }
-                    };
+                };
 
-                    var savedCustomer1 = customerClient.Store(customer1);
-                    var savedCustomer2 = customerClient.Store(customer2);
-                    lastCustomerId = savedCustomer1.Id;
-                }
-
+                redisManager.InsertModel(customer1);
+                redisManager.InsertModel(customer2);
                 // GET
-                using (IRedisClient client = new RedisClient())
-                {
-                    var customerClient = client.As<Customer>();
-                    var customer = customerClient.GetById(lastCustomerId);
+                var customer = redisManager.GetById<Customer>(lastCustomerId);
 
-                    //Console.WriteLine($"Müşteri ismi : {customer.Name}\nMüşteri Id : {customer.Id}");
-
-                    foreach (var item in customerClient.GetAll())
-                        Console.WriteLine($"Müşteri ismi : {item.Name}\nMüşteri Id : {item.Id}");
-
-
-                }
+                //Console.WriteLine($"Müşteri ismi : {customer.Name}\nMüşteri Id : {customer.Id}");
+                var filteredList = redisManager.GetAll<Customer>().Where(i => i.Name.Contains("1"));
+                foreach (var item in redisManager.GetAll<Customer>())
+                    Console.WriteLine($"Müşteri ismi : {item.Name}\nMüşteri Id : {item.Id}");
                 #endregion
                 logger.Info("list with model process işlemleri bitti");
 
                 logger.Log(LogLevel.Warn, "transaction işlemleri başladı");
                 #region transaction process
-                using (IRedisClient client = new RedisClient())
-                {
-                    var transaction = client.CreateTransaction();
-                    transaction.QueueCommand(t => t.Set("Deneme", 1));
-                    transaction.QueueCommand(t => t.Increment("Deneme", 1));
-                    transaction.Commit();
 
-                    var result = client.Get<int>("Deneme");
+                redisManager.QueueCommand(t => t.Set("Deneme", 1));
+                redisManager.QueueCommand(t => t.Increment("Deneme", 1));
+                redisManager.QueueCommand(t => t.Increment("Deneme", 1));
+                redisManager.QueueCommand(t => t.Increment("Deneme", 1));
 
-                    Console.WriteLine($"Sonuç : {result}");
-                }
+                redisManager.Commit();
+                var result = redisManager.Get<int>("Deneme");
+                Console.WriteLine($"Sonuç : {result}");
+
                 #endregion
                 logger.Log(LogLevel.Warn, "transaction işlemleri bitti");
 
@@ -159,18 +155,19 @@ namespace RedisTutorial
             }
         }
     }
-
-
-    public class Customer
+    public abstract class BaseEntity
     {
-        public long Id { get; set; }
+        public Guid Id { get; set; }
+    }
+    public class Customer : BaseEntity
+    {
         public string Name { get; set; }
         public List<Order> Orders { get; set; }
     }
 
-    public class Order
+    public class Order : BaseEntity
     {
-        public long Id { get; set; }
+        public string OrderName { get; set; }
     }
 
 
