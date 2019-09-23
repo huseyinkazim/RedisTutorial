@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core;
-using StackExchange.Redis.Extensions.Newtonsoft;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,43 +8,45 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RedisLikeTtz.Core
+namespace RedisTutorial.Business.Managers.StackExchange
 {
-    public class RedisLogger
+    public class RedisManagerWithStackExchange
     {
-        private IDatabase cache => RedisConnectorHelper.Connection.GetDatabase();
-        private IConnectionMultiplexer muxer { get { return cache.Multiplexer; } }
-        private StackExchangeRedisCacheClient _cacheClient { set; get; }
-        public StackExchangeRedisCacheClient cacheClient { get { lock (locked) { if (_cacheClient == null && muxer != null && muxer.IsConnected && muxer.GetDatabase() != null) { _cacheClient = new StackExchangeRedisCacheClient(muxer, new NewtonsoftSerializer()); } return _cacheClient; } } }
+        private IDatabase database => _connection.GetDatabase();
+        private ConnectionMultiplexer _connection => RedisConnector.TakeInstance();
+        //private IConnectionMultiplexer muxer => database.Multiplexer;
+        //private StackExchangeRedisCacheClient _cacheClient { set; get; }
+        //public StackExchangeRedisCacheClient cacheClient { get { lock (locked) { if (_cacheClient == null && muxer != null && muxer.IsConnected && muxer.GetDatabase() != null) { _cacheClient = new StackExchangeRedisCacheClient(muxer, new NewtonsoftSerializer()); } return _cacheClient; } } }
         private object locked = new object();
         public bool InsertItem<T>(string key, T obj) where T : class
         {
 
             bool result = false;
-
-            if (cacheClient != null)
+            if (database.Multiplexer.IsConnected)
             {
                 List<RedisValue> lst = new List<RedisValue>();
 
                 lst.Add(JsonConvert.SerializeObject(obj));
 
-                result = cacheClient.Database.ListLeftPush(key, lst.ToArray()) > 0;
+                result = database.ListLeftPush(key, lst.ToArray()) > 0;
             }
 
             return result;
         }
+
         public int GetListSize(string key)
         {
-            return (int)cache.ListLength(key);
+            return (int)database.ListLength(key);
         }
-        public ConcurrentBag<T> GetListItemRange<T>(string key, int start, int chunksize) where T : class
+        public ConcurrentBag<T> GetListItemRange<T>(string key, int start = 0, int chunksize = 0) where T : class
         {
+            chunksize = chunksize != 0 ? chunksize : GetListSize(key);
             ConcurrentBag<T> obj = default(ConcurrentBag<T>);
             try
             {
-                if (cacheClient != null)
+                if (database.Multiplexer.IsConnected)
                 {
-                    var redisValues = cacheClient.Database.ListRange(key, start, (start + chunksize - 1));
+                    var redisValues = database.ListRange(key, start, (start + chunksize - 1));
 
                     if (redisValues.Length > 0)
                     {
@@ -62,18 +63,12 @@ namespace RedisLikeTtz.Core
         public bool RemoveList(string key)
         {
 
-            cache.KeyDelete(key);
+            database.KeyDelete(key);
 
-            if (cache.KeyExists(key))
+            if (database.KeyExists(key))
                 return false;
             else
                 return true;
         }
-
-        public void SnapshottingSave()
-        {
-            //cacheClient.Save
-        }
-
     }
 }

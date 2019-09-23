@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisTutorial", "RedisTutor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisLikeTtz", "RedisLikeTtz\RedisLikeTtz.csproj", "{431269F3-DA9C-48B5-91B9-FE55F8263F8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisTutorial.Business", "RedisTutorial.Business\RedisTutorial.Business.csproj", "{C2AC6C2F-62FE-429A-96BA-F5E18E1DEFA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisTutorial.Data", "RedisTutorial.Data\RedisTutorial.Data.csproj", "{94C17E2A-57B4-452A-867F-B139144E5E6D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{431269F3-DA9C-48B5-91B9-FE55F8263F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{431269F3-DA9C-48B5-91B9-FE55F8263F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{431269F3-DA9C-48B5-91B9-FE55F8263F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2AC6C2F-62FE-429A-96BA-F5E18E1DEFA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2AC6C2F-62FE-429A-96BA-F5E18E1DEFA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2AC6C2F-62FE-429A-96BA-F5E18E1DEFA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2AC6C2F-62FE-429A-96BA-F5E18E1DEFA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94C17E2A-57B4-452A-867F-B139144E5E6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94C17E2A-57B4-452A-867F-B139144E5E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94C17E2A-57B4-452A-867F-B139144E5E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94C17E2A-57B4-452A-867F-B139144E5E6D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,3 +2,7 @@ StackExchange.Redis,
 StackExchange.Redis.Extensions.Core,
 StackExchange.Redis.Extensions.Newtonsoft
 nugetten indirilir
+
+ Stopwatch stopwatch = new Stopwatch();
+    stopwatch.Start();
+	stopwatch.Stop();

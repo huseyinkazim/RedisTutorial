@@ -1,6 +1,8 @@
 ﻿using Ninject.Modules;
 using NLog;
-using RedisTutorial.Manager;
+using RedisTutorial.Business.Interface;
+using RedisTutorial.Business.Managers;
+using RedisTutorial.Business.Managers.ServiceStack;
 using ServiceStack.Redis;
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ namespace RedisTutorial
             this.Bind<IRedisNativeClient>().To<RedisClient>();
             this.Bind<IRedisClient>().To<RedisClient>();
             this.Bind<ILogger>().To<Logger>();
-            this.Bind<IRedisManager>().To<RedisManager>();
+            this.Bind<IRedisManagerWithServiceStack>().To<RedisManagerWithServiceStack>();
 
         }
     }

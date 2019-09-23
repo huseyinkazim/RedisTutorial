@@ -1,13 +1,12 @@
 ﻿using Ninject;
 using NLog;
-using RedisTutorial.Manager;
+using RedisTutorial.Business.Interface;
+using RedisTutorial.Business.Managers.StackExchange;
+using RedisTutorial.Data.Model;
 using ServiceStack.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RedisTutorial
 {
@@ -15,34 +14,10 @@ namespace RedisTutorial
     class Program
     {
         public static IKernel kernal { set; get; }
-        private static ICustomLogManager _logger;
-        public static ICustomLogManager logger
-        {
-            get
-            {
-                if (_logger == null)
-                {
-                    _logger = kernal.Get<ICustomLogManager>();
-                }
-                return _logger;
-            }
-        }
-        private static IRedisManager _redisManager;
-        public static IRedisManager redisManager
-        {
-            get
-            {
-                if (_redisManager == null)
-                {
+        private static IRedisManagerWithServiceStack redisManager;
+        private static ICustomLogManager logger;
+        private static RedisManagerWithStackExchange stackExchange;
 
-                    var nativeClient = new Ninject.Parameters.ConstructorArgument("nativeClient", kernal.Get<IRedisNativeClient>());
-                    var redisClient = new Ninject.Parameters.ConstructorArgument("redisClient", kernal.Get<IRedisClient>());
-
-                    _redisManager = kernal.Get<IRedisManager>(nativeClient, redisClient);
-                }
-                return _redisManager;
-            }
-        }
         static void Main(string[] args)
         {
             try
@@ -52,8 +27,30 @@ namespace RedisTutorial
                 //kernel.Load(Assembly.GetExecutingAssembly());
                 //var mailSender = kernel.Get<IMailSender>();
                 kernal = new StandardKernel(new DIOperation());
-
+                Initialize();
                 logger.Debug("Redis Tutorial uygulaması çalıştırıldı");
+
+                #region RedisWithStackExchange
+                logger.Info("InsertItem işlemleri başladı");
+                #region insertList
+                stackExchange.InsertItem("order1", new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_1" });
+                #endregion
+                logger.Info("InsertItem işlemleri bitti");
+
+                logger.Info("GetListItemRange işlemleri başladı");
+                #region GetListItemRange
+                var orderlist = stackExchange.GetListItemRange<Order>("order1");
+                #endregion
+                logger.Info("GetListItemRange işlemleri bitti");
+
+                logger.Info("RemoveList işlemleri başladı");
+                #region RemoveList
+                stackExchange.RemoveList("order1");
+                #endregion
+                logger.Info("RemoveList işlemleri bitti");
+
+                #endregion
+                #region RedisWithServiceStack
                 logger.Info("set/get işlemleri başladı");
                 #region set/get process
 
@@ -63,37 +60,57 @@ namespace RedisTutorial
                 #endregion
                 logger.Info("set/get işlemleri bitti");
 
-                logger.Info("list process işlemleri başladı");
-                #region listprocess
+                logger.Info("list process1 işlemleri başladı");
+                #region listprocess1
                 redisManager.DeleteList("names");
-                var list = new string[] { "Murat", "Yadigar", "Serkan" };
-                redisManager.SetList("names", list);
+                var list1 = new string[] { "Murat", "Yadigar", "Serkan" };
+                redisManager.SetList("names", list1);
 
 
                 foreach (var name in redisManager.GetList("names"))
                     Console.WriteLine($"İsim : {name}");
 
                 #endregion
-                logger.Info("list process işlemleri bitti");
+                logger.Info("list process1 işlemleri bitti");
+
+                logger.Info("list process2 işlemleri başladı");
+                #region listprocess2
+                redisManager.DeleteList("orderTest");
+                var list2 = new Order[] { new Order { Id = Guid.NewGuid(), OrderName = "OrderName_1" } };
+
+                redisManager.SetList("orderTest", list2);
+                var models = redisManager.GetList<Order>("orderTest");
+
+                foreach (var name in redisManager.GetList("orderTest"))
+                    Console.WriteLine($"İsim : {name}");
+
+                #endregion
+                logger.Info("list process2 işlemleri bitti");
 
                 logger.Info("list with model process işlemleri başladı");
                 #region list with Model process
 
                 long lastCustomerId = 0;
 
-                redisManager.DeleteAllModels<Order>();
+                // redisManager.DeleteAllModels<Order>();
                 redisManager.DeleteAllModels<Customer>();
+                var order_Id1 = Guid.NewGuid();
+                var order_Id2 = Guid.NewGuid();
+                var order_Id3 = Guid.NewGuid();
+                var order_Id4 = Guid.NewGuid();
+                IEnumerable<object> orderIdList = new List<object> { order_Id2, order_Id3, order_Id4 };
 
-                var order1 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_1" };
-                var order2 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_2" };
-                var order3 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_3" };
-                var order4 = new Order() { Id = Guid.NewGuid(), OrderName = "OrderName_4" };
+                var order1 = new Order() { Id = order_Id1, OrderName = "OrderName_1" };
+                var order2 = new Order() { Id = order_Id2, OrderName = "OrderName_2" };
+                var order3 = new Order() { Id = order_Id3, OrderName = "OrderName_3" };
+                var order4 = new Order() { Id = order_Id4, OrderName = "OrderName_4" };
 
                 var orderList = new List<Order> { order1, order2, order3, order4 };
 
+                redisManager.DeleteById<Order>(order_Id1);
+                redisManager.DeleteByIds<Order>(orderIdList);
+
                 redisManager.InsertModels(orderList);
-
-
 
 
                 var customer1 = new Customer()
@@ -142,7 +159,7 @@ namespace RedisTutorial
 
                 #endregion
                 logger.Log(LogLevel.Warn, "transaction işlemleri bitti");
-
+                #endregion
             }
             catch (Exception ex)
             {
@@ -154,21 +171,28 @@ namespace RedisTutorial
                 Console.ReadKey();
             }
         }
-    }
-    public abstract class BaseEntity
-    {
-        public Guid Id { get; set; }
-    }
-    public class Customer : BaseEntity
-    {
-        public string Name { get; set; }
-        public List<Order> Orders { get; set; }
+        static void Initialize()
+        {
+            if (logger == null)
+            {
+                logger = kernal.Get<ICustomLogManager>();
+            }
+            if (redisManager == null)
+            {
+
+                var nativeClient = new Ninject.Parameters.ConstructorArgument("nativeClient", kernal.Get<IRedisNativeClient>());
+                var redisClient = new Ninject.Parameters.ConstructorArgument("redisClient", kernal.Get<IRedisClient>());
+
+                redisManager = kernal.Get<IRedisManagerWithServiceStack>(nativeClient, redisClient);
+            }
+            if (stackExchange == null)
+            {
+                stackExchange = new RedisManagerWithStackExchange();
+            }
+
+        }
     }
 
-    public class Order : BaseEntity
-    {
-        public string OrderName { get; set; }
-    }
 
 
 }

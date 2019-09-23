@@ -1,0 +1,4 @@
+ServiceStack.Redis
+Nlog
+Ninject
+Nugetten indirilenler

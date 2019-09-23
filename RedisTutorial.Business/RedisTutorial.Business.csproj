@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{78518A1C-9BD4-4349-B85C-17A9D69E6D4A}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>RedisTutorial</RootNamespace>
-    <AssemblyName>RedisTutorial</AssemblyName>
+    <ProjectGuid>{C2AC6C2F-62FE-429A-96BA-F5E18E1DEFA4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RedisTutorial.Business</RootNamespace>
+    <AssemblyName>RedisTutorial.Business</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,11 +31,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.6.6\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.6.7\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Pipelines.Sockets.Unofficial, Version=1.0.0.0, Culture=neutral, PublicKeyToken=42ea0a778e13fbe2, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pipelines.Sockets.Unofficial.2.0.22\lib\net472\Pipelines.Sockets.Unofficial.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.Common, Version=5.0.0.0, Culture=neutral, PublicKeyToken=02c12cbda47e6587, processorArchitecture=MSIL">
       <HintPath>..\packages\ServiceStack.Common.5.6.0\lib\net45\ServiceStack.Common.dll</HintPath>
@@ -51,13 +52,32 @@
     <Reference Include="ServiceStack.Text, Version=5.0.0.0, Culture=neutral, PublicKeyToken=02c12cbda47e6587, processorArchitecture=MSIL">
       <HintPath>..\packages\ServiceStack.Text.5.6.0\lib\net45\ServiceStack.Text.dll</HintPath>
     </Reference>
+    <Reference Include="StackExchange.Redis, Version=2.0.0.0, Culture=neutral, PublicKeyToken=c219ff1ca8c2ce46, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.2.0.601\lib\net472\StackExchange.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="StackExchange.Redis.Extensions.Core, Version=5.2.0.0, Culture=neutral, PublicKeyToken=d7d863643bcd13ef, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.Extensions.Core.5.2.0\lib\net472\StackExchange.Redis.Extensions.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="StackExchange.Redis.Extensions.Newtonsoft, Version=5.1.1.0, Culture=neutral, PublicKeyToken=d7d863643bcd13ef, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.Extensions.Newtonsoft.5.1.1\lib\net472\StackExchange.Redis.Extensions.Newtonsoft.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Diagnostics.PerformanceCounter, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.PerformanceCounter.4.5.0\lib\net461\System.Diagnostics.PerformanceCounter.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Pipelines, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Pipelines.4.5.1\lib\netstandard2.0\System.IO.Pipelines.dll</HintPath>
+    </Reference>
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
@@ -71,6 +91,12 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Threading.Channels, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Channels.4.5.0\lib\netstandard2.0\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -80,25 +106,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StartUp\DIOperation.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Interface\ICustomLogManager.cs" />
+    <Compile Include="Interface\IRedisManager.cs" />
+    <Compile Include="Managers\CustomLogManager.cs" />
+    <Compile Include="Managers\ServiceStack\RedisManagerWithServiceStack.cs" />
+    <Compile Include="Managers\ServiceStack\RedisTransactionCreator.cs" />
+    <Compile Include="Managers\ServiceStack\RedisTypedCreator.cs" />
+    <Compile Include="Managers\StackExchange\RedisConnector.cs" />
+    <Compile Include="Managers\StackExchange\RedisManagerWithStackExchange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RedisTutorial.Business\RedisTutorial.Business.csproj">
-      <Project>{c2ac6c2f-62fe-429a-96ba-f5e18e1defa4}</Project>
-      <Name>RedisTutorial.Business</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RedisTutorial.Data\RedisTutorial.Data.csproj">
       <Project>{94c17e2a-57b4-452a-867f-b139144e5e6d}</Project>
       <Name>RedisTutorial.Data</Name>

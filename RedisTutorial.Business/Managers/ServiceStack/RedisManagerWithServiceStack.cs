@@ -1,67 +1,33 @@
-﻿using ServiceStack.Redis;
+﻿using Newtonsoft.Json;
+using RedisTutorial.Business.Interface;
+using RedisTutorial.Data.Model;
+using ServiceStack.Redis;
 using ServiceStack.Redis.Generic;
+
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RedisTutorial.Manager
+namespace RedisTutorial.Business.Managers.ServiceStack
 {
-    public class RedisTypedCreator<T>
+    public class RedisManagerWithServiceStack : IRedisManagerWithServiceStack
     {
-        private static IRedisTypedClient<T> _TypedClient;
-        private static object locked;
+        private readonly IRedisClient redisClient;
+        private IRedisTransaction _redisTransaction => RedisTransactionCreator.CreateInstance(redisClient);
+        private T SToObject<T>(string value) => JsonConvert.DeserializeObject<T>(value);
+        private string OToString<T>(T value) => JsonConvert.SerializeObject(value);
 
-        public static IRedisTypedClient<T> CreateInstance(IRedisClient client)
-        {
-            locked = "kilitli";
-            lock (locked)
-            {
-                if (_TypedClient == null)
-                {
-                    _TypedClient = client.As<T>();
-                }
-                return _TypedClient;
-            }
-        }
-    }
-    public class RedisTransactionCreator
-    {
-        private static IRedisTransaction _redisTransaction;
-        private static object locked;
-
-        public static IRedisTransaction CreateInstance(IRedisClient client)
-        {
-            locked = "kilitli";
-            lock (locked)
-            {
-                if (_redisTransaction == null)
-                {
-                    _redisTransaction = client.CreateTransaction();
-                }
-                return _redisTransaction;
-            }
-        }
-    }
-    public class RedisManager : IRedisManager
-    {
-        //private IRedisNativeClient nativeClient;
-        private IRedisClient redisClient;
-        private IRedisTransaction _redisTransaction;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="nativeClient">basit işlemler stringleri key value işlemleri için kullanılır</param>
         /// <param name="redisClient">Üst seviye işlemler için kullanılır</param>
-        //public RedisManager(IRedisNativeClient nativeClient, IRedisClient redisClient)
-        public RedisManager(IRedisClient redisClient)
+        public RedisManagerWithServiceStack(IRedisClient redisClient)
         {
-            //this.nativeClient = nativeClient;
             this.redisClient = redisClient;
-            IRedisTransaction _redisTransaction = RedisTransactionCreator.CreateInstance(redisClient);
-
         }
         #region RedisClient
         public void SetString(string key, string value)
@@ -70,8 +36,6 @@ namespace RedisTutorial.Manager
         }
         public string GetString(string key)
         {
-
-
             return redisClient.GetValue(key);
         }
         public void SetList(string key, string[] list)
@@ -80,11 +44,22 @@ namespace RedisTutorial.Manager
             for (int i = 0; i < list.Length; i++)
                 names.Add(list[i]);
         }
+        public void SetList<T>(string key, T[] list)
+        {
+            var names = redisClient.Lists[key];
+            for (int i = 0; i < list.Length; i++)
+                names.Add(OToString(list[i]));
+        }
         public List<string> GetList(string key)
         {
             var names = redisClient.Lists[key].ToList();
             return names;
-
+        }
+        public List<T> GetList<T>(string key) where T : class
+        {
+            var names = redisClient.Lists[key].ToArray();
+            var obj = new List<T>(Array.ConvertAll(names, value => SToObject<T>(value)).ToList());
+            return obj;
         }
         public void DeleteList(string key)
         {
@@ -124,6 +99,16 @@ namespace RedisTutorial.Manager
             var client = GetRedisTypedClient<T>();
             client.DeleteAll();
         }
+        public void DeleteById<T>(object id)
+        {
+            var client = GetRedisTypedClient<T>();
+            client.DeleteById(id);
+        }
+        public void DeleteByIds<T>(IEnumerable<object> ids)
+        {
+            var client = GetRedisTypedClient<T>();
+            client.DeleteByIds(ids);
+        }
         public IList<T> GetAll<T>()
         {
             var client = GetRedisTypedClient<T>();
@@ -138,14 +123,17 @@ namespace RedisTutorial.Manager
         #region Transaction Process
         public void QueueCommand(Func<IRedisClient, bool> command)
         {
+           // _redisTransaction = RedisTransactionCreator.CreateInstance(redisClient);
             _redisTransaction.QueueCommand(command);
         }
         public void QueueCommand(Func<IRedisClient, long> command)
         {
+           // _redisTransaction = RedisTransactionCreator.CreateInstance(redisClient);
             _redisTransaction.QueueCommand(command);
         }
         public void Commit()
         {
+           // _redisTransaction = RedisTransactionCreator.CreateInstance(redisClient);
             _redisTransaction.Commit();
         }
 
